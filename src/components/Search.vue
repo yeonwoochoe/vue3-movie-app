@@ -60,7 +60,12 @@ export default {
   },
   methods: {
     async apply() {
+      // store의 Mutations를 실행할 때 .commit() 메소드 사용
+      // store의 Actions를 실행할 때 .dispatch() 메소드 사용
+      // movie라는 스토어에 접근해서 searchMovies 실행.
+      // index.js 에서 사용한 모듈에 연결한 movie
       this.$store.dispatch("movie/searchMovies", {
+        // payload의 데이터 전달
         title: this.title,
         type: this.type,
         number: this.number,
