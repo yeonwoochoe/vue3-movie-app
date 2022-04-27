@@ -1,5 +1,10 @@
 <template>
-  <div>{{ movie.imdbID }}</div>
+  <div :style="{ backgroundImage: `url(${movie.Poster})` }" class="movie">
+    <div class="info">
+      <div class="yaer">{{ movie.Year }}</div>
+      <div class="title">{{ movie.Title }}</div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -12,3 +17,49 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "~/scss/main";
+
+.movie {
+  position: relative;
+  $width: 168px;
+  width: $width;
+  height: $width * 3/2;
+  margin: 10px;
+  border-radius: 4px;
+  background-color: $gray-400;
+  background-size: cover;
+  overflow: hidden;
+  &:hover::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border: 6px solid $primary;
+  }
+  .info {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    text-align: center;
+    background-color: rgba($black, 0.5);
+    backdrop-filter: blur(10px);
+    .yaer {
+      font-weight: 700;
+      color: $primary;
+    }
+    .title {
+      color: $white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+</style>

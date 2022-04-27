@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import axios from "axios";
 import _uniqBy from "lodash/uniqBy";
 export default {
@@ -5,7 +6,11 @@ export default {
   namespaced: true,
   //data
   //state는 컴포넌트 간에 공유할 data 속성을 의미합니다
-  state: () => ({ movies: [] }), //반환값이 객체데이터 하나이기떄문에 중괄호과 리턴 생략
+  state: () => ({
+    movies: [],
+    message: "Search for the movie title!",
+    loading: false,
+  }), //반환값이 객체데이터 하나이기떄문에 중괄호과 리턴 생략
   //상태를 활용해서 만드는 computed 계산된 데이터
   getters: {},
   //methods 와 비슷한개념
@@ -16,7 +21,6 @@ export default {
   mutations: {
     updateState(state, payload) {
       //['movies', 'message','loading'] 배열데이터 반환
-      // eslint-disable-next-line prettier/prettier
       Object.keys(payload).forEach(key => {
         //동적은 로직 구성 가능
         // state.movies = payload.movies
@@ -35,38 +39,87 @@ export default {
     // commit, state가 context 내부에 들어있기때문에 객체구조분해를 통해
     // 매개변수에 할당 {state, commit}
     async searchMovies({ state, commit }, payload) {
-      const { title, type, number, year } = payload;
-      const OMDB_API_KEY = "7035c60c";
-      const res = await axios.get(
-        `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=1`
-      );
-      console.log(number);
-      const { Search, totalResults } = res.data;
+      if (state.loading) return; //중괄호 생략
+
+      //최초 searchMovies 실행 되게 되면 우선 loading 초기값이 false 이기때문에  if 조건문이
+      //실행되지 않고 아래 구문으로 내려가게되고, commit을 만나 loading값이 다시 true로 갱신되면서
+      //아래 로직이 순차적으로 실행되가는데, 이 상태에서 사용자가 엔터키를 누른다거나, apply버튼을 누를경우,
+      //또 searchMovies가 실행되기때문에 if조건문이 true로 조건문에 걸리면서 return에 걸려 아래 로직이
+      //실행되지 않게 되는 구조로 searchMovies 함수가 여러번 동작이 되는 것을 방지
+      //함수에서 `조건문 & return`을 사용하면, 아래의 코드를 실행시키지 않을 수 있다.
       commit("updateState", {
-        movies: _uniqBy(Search, "imdbID"),
+        message: "",
+        loading: true,
       });
-      console.log(res.data); //350
-      console.log(totalResults); //350
-      console.log(typeof totalResults); //string
-      // 10진법의 숫자로 정수로 만들어서 total에 할당
-      const total = parseInt(totalResults, 10);
-      const pageLength = Math.ceil(total / 10);
-      // 영화의 개수가 10개 이상이 될 때 페이지 추가 요청
-      if (pageLength > 1) {
-        for (let page = 2; page <= pageLength; page += 1) {
-          if (page > number / 10) {
-            break;
+      try {
+        const res = await _fetchMovie({
+          ...payload,
+          psge: 1,
+        });
+        const { Search, totalResults } = res.data;
+        commit("updateState", {
+          movies: _uniqBy(Search, "imdbID"),
+        });
+        console.log(res.data); //350
+        console.log(totalResults); //350
+        console.log(typeof totalResults); //string
+        // 10진법의 숫자로 정수로 만들어서 total에 할당
+        const total = parseInt(totalResults, 10);
+        const pageLength = Math.ceil(total / 10);
+        // 영화의 개수가 10개 이상이 될 때 페이지 추가 요청
+        if (pageLength > 1) {
+          for (let page = 2; page <= pageLength; page += 1) {
+            if (page > payload.number / 10) {
+              break;
+            }
+            const res = await _fetchMovie({
+              ...payload,
+              page,
+            });
+            const { Search } = res.data;
+            commit("updateState", {
+              // 새로운 요청이 들어갈 때마다 새로운 배열데이터를 만들어서 movies에 할당
+              movies: [...state.movies, ..._uniqBy(Search, "imdbID")],
+            });
           }
-          const res = await axios.get(
-            `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`
-          );
-          const { Search } = res.data;
-          commit("updateState", {
-            // 새로운 요청이 들어갈 때마다 새로운 배열데이터를 만들어서 movies에 할당
-            movies: [...state.movies, ..._uniqBy(Search, "imdbID")],
-          });
         }
+      } catch (message) {
+        commit("updateState", {
+          // 검색이 시작되면 기본값이 지워지고 메세지가 초기화 되도록 함
+          movies: [],
+          message,
+        });
+      } finally {
+        commit("updateState", {
+          loading: false,
+        });
       }
     },
   },
 };
+
+function _fetchMovie(payload) {
+  console.log(payload);
+  //{title: 'frozen', type: 'movie', number: 10, year: '', psge: 1}
+  const { title, type, year, page } = payload;
+  const OMDB_API_KEY = "7035c60c";
+  const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
+  // const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}`;
+  //api키만 있는 경우 reject가 호출되는 것이 맞지만 서버에서 자체적으로  then에서
+  //처리가 되는 문제가 생긴다.
+  return new Promise((resolve, reject) => {
+    axios
+      .get(url)
+      .then(res => {
+        if (res.data.Error) {
+          reject(res.data.Error);
+        }
+        resolve(res);
+      })
+      .catch(err => {
+        //에러가 발생하면 에러 객체에서 에러 메시지 부분만 추출하여 fetch함수에 reject에 걸어놨고
+        //이부분이 위 catch문에 에러가 걸리게 되고 거기서 에러메시지를 commit을 통해 갱신할 수 있는 구조
+        reject(err.message);
+      });
+  });
+}

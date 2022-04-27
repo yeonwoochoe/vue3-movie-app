@@ -1,7 +1,19 @@
 <template>
   <div class="container">
-    <div class="inner">
-      <MovieItem v-for="movie in movies" :key="movie.imdbID" :movie="movie" />
+    <div :class="{ 'no-result': !movies.length }" class="inner">
+      <div
+        v-if="loading"
+        class="spinner-border text-primary"
+        role="status"
+      ></div>
+      <!-- !movie.length(영화의 목록이 없으면) 없으면 true로 바인딩이 되고 , false 면 바인딩이 되지 않는다. -->
+      <div v-if="message" class="message">
+        {{ message }}
+      </div>
+      <div v-else class="movies">
+        <!-- if조건문이 false 라면 보이는것 -->
+        <MovieItem v-for="movie in movies" :key="movie.imdbID" :movie="movie" />
+      </div>
     </div>
   </div>
 </template>
@@ -20,6 +32,37 @@ export default {
     movies() {
       return this.$store.state.movie.movies;
     },
+    message() {
+      return this.$store.state.movie.message;
+    },
+    loading() {
+      return this.$store.state.movie.loading;
+    },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "~/scss/main";
+.container {
+  margin-top: 30px;
+  .inner {
+    background-color: $gray-200;
+    padding: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+    &.no-result {
+      padding: 70px 0;
+    }
+  }
+  .message {
+    color: $gray-400;
+    font-size: 20px;
+  }
+  .movies {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+</style>
