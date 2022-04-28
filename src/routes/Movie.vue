@@ -20,9 +20,14 @@
 
     <div v-else class="movie-details">
       <div
-        :style="{ backgroundImage: `url(${theMovie.Poster})` }"
+        :style="{
+          // eslint-disable-next-line prettier/prettier
+          backgroundImage: `url(${requestDiffSizeImage(theMovie.Poster)})`,
+        }"
         class="poster"
-      ></div>
+      >
+        <Loader v-if="imageLoading" absolute />
+      </div>
       <div class="specs">
         <div class="title">
           {{ theMovie.Title }}
@@ -82,6 +87,11 @@ export default {
   components: {
     Loader,
   },
+  data() {
+    return {
+      imageLoading: true,
+    };
+  },
 
   computed: {
     theMovie() {
@@ -99,6 +109,29 @@ export default {
       // movie/tt4520988에서 tt4520988값을 id로 지정, 주소의 파라미터의 id
       id: this.$route.params.id,
     });
+  },
+  // 포스터 이미지의 사이즈 변경
+  methods: {
+    requestDiffSizeImage(url, size = 700) {
+      if (!url || url === "N/A") {
+        this.imageLoading = false;
+        // 영화의 포스터가 없거나 N/A인 경우 로딩표시를 종료하고
+        // 빈문자열을 반환해서 이미지에 아무것도 표시되지 않도록함
+        // 리턴에 아무값을 주지않으면 undefined가 출력되므로 빈문자 출력
+        return "";
+      }
+      // 첫번째 인수의 사이즈를 두번째 인수로 교체
+      const src = url.replace("SX300", `SX${size}`);
+      this.$loadImage(src).then(() => {
+        this.imageLoading = false;
+      });
+      return src;
+    },
+    //이미지의 사이즈를 교체한 뒤 로딩표시가 나와야하기때문에
+    // async await 말고 .then 사용(로직의 흐름 방해없이 비동기 처리)
+    // 비동기 함수가 실행되고 나서 처리가 완료되면 then이 실행되는데
+    // return은 별개이기때문에 이미지가 바뀌면 내용이들어가는 변수src는
+    // 그것과 별개로 바로 리턴됨
   },
 };
 </script>
@@ -147,6 +180,7 @@ export default {
   display: flex;
   color: $gray-600;
   .poster {
+    position: relative;
     flex-shrink: 0;
     width: 500px;
     height: 500px * 3 / 2;
