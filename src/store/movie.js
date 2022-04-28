@@ -10,6 +10,7 @@ export default {
     movies: [],
     message: "Search for the movie title!",
     loading: false,
+    theMovie: {},
   }), //반환값이 객체데이터 하나이기떄문에 중괄호과 리턴 생략
   //상태를 활용해서 만드는 computed 계산된 데이터
   getters: {},
@@ -95,15 +96,45 @@ export default {
         });
       }
     },
+    // 영화 하나의 상세정보 가져오기
+    async searchMovieWithId({ state, commit }, payload) {
+      if (state.loading) return; //중괄호 생략
+      commit("updateState", {
+        // 기존에 검색된 영화의 상세목록이 잠깐이라도 화면에 출력되는걸 방지
+        theMovie: {},
+        loading: true,
+      });
+      try {
+        // payload를 통해 id 영화의 imdbID라는 고유값을 가져옴
+        const res = await _fetchMovie(payload);
+        console.log(res);
+        commit("updateState", {
+          theMovie: res.data,
+        });
+      } catch (error) {
+        commit("updateState", {
+          // 영화의 상세정보를 가져오지 못하면 빈객체상태로 만듬
+          theMovie: {},
+        });
+      } finally {
+        commit("updateState", {
+          loading: false,
+        });
+      }
+    },
   },
 };
 
 function _fetchMovie(payload) {
-  console.log(payload);
   //{title: 'frozen', type: 'movie', number: 10, year: '', psge: 1}
-  const { title, type, year, page } = payload;
+  console.log(payload);
+  const { title, type, year, page, id } = payload;
   const OMDB_API_KEY = "7035c60c";
-  const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
+  // 삼항연산자로 id라는 속성에 데이터가 있으면 단일영화정보의 상세내용을
+  // 없으면 다수의 영화정보를 가져옴
+  const url = id
+    ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`
+    : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
   // const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}`;
   //api키만 있는 경우 reject가 호출되는 것이 맞지만 서버에서 자체적으로  then에서
   //처리가 되는 문제가 생긴다.
