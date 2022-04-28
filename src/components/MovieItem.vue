@@ -1,18 +1,46 @@
 <template>
-  <div :style="{ backgroundImage: `url(${movie.Poster})` }" class="movie">
+  <RouterLink
+    :to="`/movie/${movie.imdbID}`"
+    :style="{ backgroundImage: `url(${movie.Poster})` }"
+    class="movie"
+  >
+    <Loader v-if="imageLoading" :size="1.5" absolute />
     <div class="info">
       <div class="yaer">{{ movie.Year }}</div>
       <div class="title">{{ movie.Title }}</div>
     </div>
-  </div>
+  </RouterLink>
 </template>
-
 <script>
+import Loader from "~/components/Loader";
 export default {
+  components: {
+    Loader,
+  },
   props: {
     movie: {
       type: Object,
       default: () => ({}),
+    },
+  },
+  data() {
+    return {
+      imageLoading: true,
+    };
+  },
+  mounted() {
+    this.init();
+  },
+  methods: {
+    async init() {
+      const poster = this.movie.Poster;
+      // 영화 포스터가 없거나, "N/A"인 경우 로딩이 그만 표시되게 함
+      if (!poster || poster === "N/A") {
+        this.imageLoading = false;
+      } else {
+        await this.$loadImage(poster);
+        this.imageLoading = false;
+      }
     },
   },
 };
