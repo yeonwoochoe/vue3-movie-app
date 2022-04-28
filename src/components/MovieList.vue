@@ -1,11 +1,7 @@
 <template>
   <div class="container">
     <div :class="{ 'no-result': !movies.length }" class="inner">
-      <div
-        v-if="loading"
-        class="spinner-border text-primary"
-        role="status"
-      ></div>
+      <Loader v-if="loading" />
       <!-- !movie.length(영화의 목록이 없으면) 없으면 true로 바인딩이 되고 , false 면 바인딩이 되지 않는다. -->
       <div v-if="message" class="message">
         {{ message }}
@@ -20,9 +16,11 @@
 
 <script>
 import MovieItem from "~/components/MovieItem";
+import Loader from "~/components/Loader";
 export default {
   components: {
     MovieItem,
+    Loader,
   },
   //   // moive.js의 state에 있는 movie[] 빈배열 데이터가 searchMovies()가
   //   // 동작해서 정보를 가지고 있는 새로운 데이터로 갱신되면 반응성이 유지된

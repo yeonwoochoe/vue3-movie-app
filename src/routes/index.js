@@ -18,7 +18,8 @@ export default createRouter({
       component: Home,
     },
     {
-      path: "/movie",
+      //id값대로 주소를 동적으로 변경
+      path: "/movie/:id",
       component: Movie,
     },
     {
