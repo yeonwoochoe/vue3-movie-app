@@ -2,6 +2,7 @@
 // 특히 Windows에서 발생하는 오류 해결을 위한 코드.
 // 이 코드가 없어도 잘 동작하는 경우 필요치 않음.
 
+// eslint-disable-next-line prettier/prettier
 const _require = id =>
   require(require.resolve(id, { paths: [require.main.path] }));
 
@@ -48,7 +49,14 @@ module.exports = {
           "style-loader",
           "css-loader",
           "postcss-loader",
-          "sass-loader",
+          {
+            // 모든 컴포넌트 전역에서 @import '~/scss/main.scss' 없이
+            // scss 스타일 사용하기(설정하고 개발자서버 재부팅 할것)
+            loader: "sass-loader",
+            options: {
+              additionalData: '@import "~/scss/main";',
+            },
+          },
         ],
       },
       {
