@@ -19,11 +19,15 @@
         </RouterLink>
       </div>
     </div>
+    <div class="user" @click="toAbout">
+      <img :src="image" :alt="name" />
+    </div>
   </header>
 </template>
 
 <script>
 import Logo from "~/components/Logo";
+import { mapState } from "vuex";
 export default {
   components: {
     Logo,
@@ -49,6 +53,16 @@ export default {
       ],
     };
   },
+  computed: {
+    ...mapState("about", ["image", "name"]),
+
+    // image() {
+    //   return this.$store.state.about.image;
+    // },
+    // name() {
+    //   return this.$store.state.about.name;
+    // },
+  },
   methods: {
     // /movie와 일치하면 내비게이션 버튼을 활성화해줌
     isMatch(path) {
@@ -59,18 +73,50 @@ export default {
       return path.test(this.$route.fullPath);
       //test()함수는 불린데이터를 반환
     },
+    //router링크 태그가 아니어도 페이지 이동을 시켜줄 수 있는 방법!
+    toAbout() {
+      this.$router.push("/about");
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 header {
+  position: relative;
   height: 70px;
   padding: 0 40px;
   display: flex;
   align-items: center;
   .logo {
     margin-right: 40px;
+  }
+  .user {
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    background-color: $gray-200;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 40px;
+    margin: auto;
+    transition: 0.4s;
+    &:hover {
+      background-color: darken($gray-200, 10%);
+    }
+    img {
+      width: 100%;
+    }
+  }
+  //부트스트랩 반응형 쿼리
+  @include media-breakpoint-down(sm) {
+    .nav {
+      display: none;
+    }
   }
 }
 </style>

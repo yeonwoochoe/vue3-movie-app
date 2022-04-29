@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import MovieItem from "~/components/MovieItem";
 import Loader from "~/components/Loader";
 export default {
@@ -27,21 +28,21 @@ export default {
   //   // 상태로 MovieList라는 컴포넌트에서 활용되어야하므로 계산된 데이터를
   //   // 처리하는 computed옵션에 정의
   computed: {
-    movies() {
-      return this.$store.state.movie.movies;
-    },
-    message() {
-      return this.$store.state.movie.message;
-    },
-    loading() {
-      return this.$store.state.movie.loading;
-    },
+    ...mapState("movie", ["movies", "message", "loading"]),
+    // movies() {
+    //   return this.$store.state.movie.movies;
+    // },
+    // message() {
+    //   return this.$store.state.movie.message;
+    // },
+    // loading() {
+    //   return this.$store.state.movie.loading;
+    // },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "~/scss/main";
 .container {
   margin-top: 30px;
   .inner {
