@@ -89,7 +89,9 @@ export default {
             });
           }
         }
-      } catch (message) {
+      } catch ({ message }) {
+        //netlify로 중간 서버로 거치기때문에 단순 메시지가 아닌 에러객체로 반환하기때문에 error.message로
+        //바꿔줘야하는데 여기서 객체구조분해로 바로 객체로 꺼내오는것.
         commit("updateState", {
           // 검색이 시작되면 기본값이 지워지고 메세지가 초기화 되도록 함
           movies: [],
@@ -130,32 +132,38 @@ export default {
   },
 };
 
-function _fetchMovie(payload) {
-  //{title: 'frozen', type: 'movie', number: 10, year: '', psge: 1}
-  console.log(payload);
-  const { title, type, year, page, id } = payload;
-  const OMDB_API_KEY = "7035c60c";
-  // 삼항연산자로 id라는 속성에 데이터가 있으면 단일영화정보의 상세내용을
-  // 없으면 다수의 영화정보를 가져옴
-  const url = id
-    ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`
-    : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
-  // const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}`;
-  //api키만 있는 경우 reject가 호출되는 것이 맞지만 서버에서 자체적으로  then에서
-  //처리가 되는 문제가 생긴다.
-  return new Promise((resolve, reject) => {
-    axios
-      .get(url)
-      .then(res => {
-        if (res.data.Error) {
-          reject(res.data.Error);
-        }
-        resolve(res);
-      })
-      .catch(err => {
-        //에러가 발생하면 에러 객체에서 에러 메시지 부분만 추출하여 fetch함수에 reject에 걸어놨고
-        //이부분이 위 catch문에 에러가 걸리게 되고 거기서 에러메시지를 commit을 통해 갱신할 수 있는 구조
-        reject(err.message);
-      });
-  });
+async function _fetchMovie(payload) {
+  // axios.get payload의 여러 데이터들을 쿼리스트링으로 풀어서 작성
+  // axios.post payload를 포함하는 것으로도 전송가능
+  return await axios.post("/.netlify/functions/movie", payload);
 }
+
+// function _fetchMovie(payload) {
+//   //{title: 'frozen', type: 'movie', number: 10, year: '', psge: 1}
+//   console.log(payload);
+//   const { title, type, year, page, id } = payload;
+//   const OMDB_API_KEY = "7035c60c";
+//   // 삼항연산자로 id라는 속성에 데이터가 있으면 단일영화정보의 상세내용을
+//   // 없으면 다수의 영화정보를 가져옴
+//   const url = id
+//     ? `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`
+//     : `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${title}&type=${type}&y=${year}&page=${page}`;
+//   // const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}`;
+//   //api키만 있는 경우 reject가 호출되는 것이 맞지만 서버에서 자체적으로  then에서
+//   //처리가 되는 문제가 생긴다.
+//   return new Promise((resolve, reject) => {
+//     axios
+//       .get(url)
+//       .then(res => {
+//         if (res.data.Error) {
+//           reject(res.data.Error);
+//         }
+//         resolve(res);
+//       })
+//       .catch(err => {
+//         //에러가 발생하면 에러 객체에서 에러 메시지 부분만 추출하여 fetch함수에 reject에 걸어놨고
+//         //이부분이 위 catch문에 에러가 걸리게 되고 거기서 에러메시지를 commit을 통해 갱신할 수 있는 구조
+//         reject(err.message);
+//       });
+//   });
+// }
