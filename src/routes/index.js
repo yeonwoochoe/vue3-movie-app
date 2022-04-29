@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "./Home";
 import About from "./About";
 import Movie from "./Movie";
-
+import NotFound from "./NotFound";
 export default createRouter({
   // Hash모드 , History모드 ( Hash모드 사용)
   // Hash모드 http://google.com/#/search  #을 붙여서 페이지에 접근
@@ -27,6 +27,12 @@ export default createRouter({
       // 그때 연결된 vue.js의 컴포넌트가 적용
       path: "/about",
       component: About,
+    },
+    {
+      // / , /movie , /about 을 제외한 나머지 모든페이지는 NotFound
+      //notFound이라는 이름이 아니어도 내가 지정할 수있음
+      path: "/:notFound(.*)",
+      component: NotFound,
     },
   ],
 });
