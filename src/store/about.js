@@ -7,6 +7,6 @@ export default {
     email: "chiyy6162@gmail.com",
     blog: "개편중",
     phone: "+82-10-9999-9999",
-    image: "../static/images/my-emotion.png",
+    image: "../images/my-emotion.png",
   }),
 };
