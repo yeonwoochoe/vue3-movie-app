@@ -1,6 +1,7 @@
 <template>
   <footer>
     <Logo />
+
     <a href="https://github.com/yeonwoochoe" target="_blank">
       (c){{ new Date().getFullYear() }} YEONWOO
     </a>
