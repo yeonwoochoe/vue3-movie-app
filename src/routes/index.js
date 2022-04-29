@@ -8,6 +8,10 @@ export default createRouter({
   // Hash모드 http://google.com/#/search  #을 붙여서 페이지에 접근
   // 사용이유: 특정페이지에서 새로고침을 햇을 때 페이지를 찾을 수 없다는 메세지 방지
   history: createWebHashHistory(),
+  //page 가 달라져도 스크롤이 최상단으로 해주는 메소드
+  scrollBehavior() {
+    return { top: 0 };
+  },
   //page들을 구분해주는?옵션
   routes: [
     {

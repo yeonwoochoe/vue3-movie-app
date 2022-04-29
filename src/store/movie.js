@@ -1,6 +1,9 @@
 /* eslint-disable prettier/prettier */
 import axios from "axios";
 import _uniqBy from "lodash/uniqBy";
+
+const _defaultMessage = "Search for the movie title!";
+
 export default {
   //movie.js가 store에서 module화 되어서 사용할 수 있다라는것을 명시적로 보여줌.
   namespaced: true,
@@ -8,7 +11,7 @@ export default {
   //state는 컴포넌트 간에 공유할 data 속성을 의미합니다
   state: () => ({
     movies: [],
-    message: "Search for the movie title!",
+    message: _defaultMessage,
     loading: false,
     theMovie: {},
   }), //반환값이 객체데이터 하나이기떄문에 중괄호과 리턴 생략
@@ -31,6 +34,8 @@ export default {
     },
     resetMovies(state) {
       state.movies = [];
+      state.message = _defaultMessage;
+      state.loading = false;
     },
   },
   //비동기로 동작
