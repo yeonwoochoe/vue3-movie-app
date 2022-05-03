@@ -4,9 +4,10 @@ module.exports = {
     browser: true,
     node: true,
     jset: true,
+    "cypress/globals": true,
   },
 
-  plugins: ["prettier"],
+  plugins: ["prettier", "cypress"],
   // 사용 가능한 규칙 세트
   extends: [
     // 'plugin:vue/vue3-essential', // Lv1
