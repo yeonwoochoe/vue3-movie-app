@@ -1,6 +1,7 @@
 # Vue3 템플릿 with Webpack
 
 Vue3와 OMDb API를 사용하는 영화 검색 애플리케이션입니다.<br>
+[DEMO](https://celebrated-cuchufli-139e57.netlify.app/)
 
 ## Goals
 
